@@ -25,3 +25,5 @@ def main():
         repeat()
     else:
         do()
+
+main()
