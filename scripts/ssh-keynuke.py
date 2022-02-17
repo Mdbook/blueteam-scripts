@@ -1,3 +1,6 @@
+# Michael Burke
+# Goes through every user's home directory and removes .ssh/authorized_keys
+
 import os
 import time
 import sys
