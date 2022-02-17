@@ -15,6 +15,7 @@ def do():
             os.system("rm -rf " + file + "/.ssh/authorized_keys")
     
 def main():
+    global isRepeat
     os.chdir("/home")
     if len(sys.argv) >= 2:
         for arg in sys.argv:
