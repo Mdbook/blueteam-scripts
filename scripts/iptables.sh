@@ -81,24 +81,26 @@ if [ $SAFE_MODE = TRUE ] ; then
 
     #The rest of these rules are untested, but should work
 
+    # TODO: why is there fi at the end of each line
+
     #Output rules
     if [ $OUTPUT_RULES = TRUE ] ; then
-        sudo iptables -F && sudo iptables -P OUTPUT ACCEPT && sudo iptables -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT && sudo iptables -A OUTPUT -p tcp -m tcp -m multiport ! --dports $OUTPUT_TCP -j DROP && sudo iptables -A OUTPUT -p udp -m udp -m multiport ! --dports $OUTPUT_UDP -j DROP    fi
+        sudo iptables -F && sudo iptables -P OUTPUT ACCEPT && sudo iptables -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT && sudo iptables -A OUTPUT -p tcp -m tcp -m multiport ! --dports $OUTPUT_TCP -j DROP && sudo iptables -A OUTPUT -p udp -m udp -m multiport ! --dports $OUTPUT_UDP -j DROP
     fi
 
     #Forward rules
     if [ $FORWARD_RULES = TRUE ] ; then
-        sudo iptables -F && sudo iptables -P FORWARD ACCEPT && sudo iptables -A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT && sudo iptables -A FORWARD -p tcp -m tcp -m multiport ! --dports $FORWARD_TCP -j DROP && sudo iptables -A FORWARD -p udp -m udp -m multiport ! --dports $FORWARD_UDP -j DROP    fi
+        sudo iptables -F && sudo iptables -P FORWARD ACCEPT && sudo iptables -A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT && sudo iptables -A FORWARD -p tcp -m tcp -m multiport ! --dports $FORWARD_TCP -j DROP && sudo iptables -A FORWARD -p udp -m udp -m multiport ! --dports $FORWARD_UDP -j DROP
     fi
 
     #Prerouting rules
     if [ $PREROUTING_RULES = TRUE ] ; then
-        sudo iptables -F && sudo iptables -P PREROUTING ACCEPT && sudo iptables -A PREROUTING -m state --state ESTABLISHED,RELATED -j ACCEPT && sudo iptables -A PREROUTING -p tcp -m tcp -m multiport ! --dports $PREROUTING_TCP -j DROP && sudo iptables -A PREROUTING -p udp -m udp -m multiport ! --dports $PREROUTING_UDP -j DROP    fi
+        sudo iptables -F && sudo iptables -P PREROUTING ACCEPT && sudo iptables -A PREROUTING -m state --state ESTABLISHED,RELATED -j ACCEPT && sudo iptables -A PREROUTING -p tcp -m tcp -m multiport ! --dports $PREROUTING_TCP -j DROP && sudo iptables -A PREROUTING -p udp -m udp -m multiport ! --dports $PREROUTING_UDP -j DROP
     fi
 
     #Postrouting rules
     if [ $POSTROUTING_RULES = TRUE ] ; then
-        sudo iptables -F && sudo iptables -P POSTROUTING ACCEPT && sudo iptables -A POSTROUTING -m state --state ESTABLISHED,RELATED -j ACCEPT && sudo iptables -A POSTROUTING -p tcp -m tcp -m multiport ! --dports $POSTROUTING_TCP -j DROP && sudo iptables -A POSTROUTING -p udp -m udp -m multiport ! --dports $POSTROUTING_UDP -j DROP    fi
+        sudo iptables -F && sudo iptables -P POSTROUTING ACCEPT && sudo iptables -A POSTROUTING -m state --state ESTABLISHED,RELATED -j ACCEPT && sudo iptables -A POSTROUTING -p tcp -m tcp -m multiport ! --dports $POSTROUTING_TCP -j DROP && sudo iptables -A POSTROUTING -p udp -m udp -m multiport ! --dports $POSTROUTING_UDP -j DROP
     fi
 
 elif [ $SAFE_MODE = FALSE] ; then
