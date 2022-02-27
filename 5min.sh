@@ -5,5 +5,8 @@
 if [ which apt ]; then
     apt-get install --reinstall passwd
     apt-get install --reinstall coreutils
+    apt-get install sshpass
+    apt-get install golang-go
+    apt-get install nmap
 elif [ which yum ]; then
     yum 
