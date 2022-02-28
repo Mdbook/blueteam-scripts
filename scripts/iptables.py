@@ -14,7 +14,7 @@ isQuiet = False
 
 allowPorts = {
     "tcp":[22, 80, 443],
-    "udp":[22, 80, 443]
+    "udp":[]
 }
 
 tables = [
