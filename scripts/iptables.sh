@@ -81,8 +81,6 @@ if [ $SAFE_MODE = TRUE ] ; then
 
     #The rest of these rules are untested, but should work
 
-    # TODO: why is there fi at the end of each line
-
     #Output rules
     if [ $OUTPUT_RULES = TRUE ] ; then
         sudo iptables -F && sudo iptables -P OUTPUT ACCEPT && sudo iptables -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT && sudo iptables -A OUTPUT -p tcp -m tcp -m multiport ! --dports $OUTPUT_TCP -j DROP && sudo iptables -A OUTPUT -p udp -m udp -m multiport ! --dports $OUTPUT_UDP -j DROP
