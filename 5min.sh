@@ -1,4 +1,3 @@
-# TODO: figure out if passwd is shimmed
 # TODO: pass parameters to iptables.sh
 # TODO: run all scripts
 
