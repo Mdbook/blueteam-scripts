@@ -1,7 +1,5 @@
 #Script to reset and initialize
 
-#TODO: add mangle
-
 #---CONFIG---
 SAFE_MODE=TRUE
 #In regular mode, the device will completely close off if the
