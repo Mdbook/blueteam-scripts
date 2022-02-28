@@ -47,8 +47,7 @@ def exec(str):
 
 
 def safe_mode():
-    global allowEstablished
-    global allowPorts
+    global allowEstablished, allowPorts, allowICMP
     tcp_allow = ','.join(str(e) for e in allowPorts.get("tcp"))
     udp_allow = ','.join(str(e) for e in allowPorts.get("udp"))
     for table in tables:
@@ -60,6 +59,8 @@ def safe_mode():
                 exec("iptables -t "+table+" -A "+chain+" -p tcp -m tcp -m multiport ! --dports "+tcp_allow+" -j DROP")
             if udp_allow != "":
                 exec("iptables -t "+table+" -A "+chain+" -p udp -m udp -m multiport ! --dports "+udp_allow+" -j DROP")
+            if not allowICMP:
+                exec("iptables -t "+table+" -A "+chain+" -p icmp -j DROP")
     # for chain in chains.get("nil"):
     #     exec("iptables -P " + chain + " ACCEPT")
     #     if allowEstablished:
@@ -70,9 +71,7 @@ def safe_mode():
     #         exec("iptables -A "+chain+" -p udp -m udp -m multiport ! --dports "+udp_allow+" -j DROP")
 
 def iron_wall():
-    global allowEstablished
-    global allowPorts
-    global allowICMP
+    global allowEstablished, allowPorts, allowICMP
     tcp_allow = ','.join(str(e) for e in allowPorts.get("tcp"))
     udp_allow = ','.join(str(e) for e in allowPorts.get("udp"))
     for table in tables:
@@ -139,7 +138,7 @@ def flushall_allow():
     return
     
 def main():
-    global disableFirewalls, flushAllAllow, preDrop, preKill, onlyFlush, safeMode, allowPorts, basicFlush, isDemo, isQuiet
+    global disableFirewalls, flushAllAllow, preDrop, preKill, onlyFlush, safeMode, allowPorts, basicFlush, isDemo, isQuiet, allowICMP
     for arg in sys.argv:
         if arg == "-f" or arg == "--flush-only":
             onlyFlush = True
@@ -149,6 +148,8 @@ def main():
             preDrop = True
         elif arg == "-b" or arg == "--basic-flush":
             basicFlush = True
+        elif arg == "-p" or arg == "--ignore-ping":
+            allowICMP = False
         elif arg == "-q" or arg == "--quiet":
             isQuiet = True
         elif arg == "--demo":
@@ -166,6 +167,7 @@ def main():
             print("                       |   before establishing new ones")
             print("-f or --flush-only     |   Flush all rules; don't establish new ones")
             print("-i or --iron-wall      |   Iron wall mode (NOT for use with cloud boxes)")
+            print("-p or --ignore-ping    |   Block ICMP Ping requests")
             print("-q or --quiet          |   Suppress output")
             print("--demo                 |   Display rule commands, but don't execute them")
             print("--tcp=[PORTS]          |   Specify which TCP ports to allow (separated by ,)")
