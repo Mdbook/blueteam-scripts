@@ -139,7 +139,7 @@ def flushall_allow():
     return
     
 def main():
-    global disableFirewalls, flushAllAllow, preDrop, preKill, onlyFlush, safeMode, allowPorts, basicFlush, isDemo, isQuiet, allowICMP
+    global disableFirewalls, flushAllAllow, preDrop, preKill, onlyFlush, safeMode, allowPorts, basicFlush, isDemo, isQuiet, allowICMP, isLoop
     for arg in sys.argv:
         if arg == "-f" or arg == "--flush-only":
             onlyFlush = True
