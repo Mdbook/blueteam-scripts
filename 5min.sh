@@ -36,7 +36,7 @@ cd scripts
 
 if [ `which python3` ]; then
     python3 ssh-keynuke.py
-    python3 disable-users.py
+    python3 disable_users.sh
     python3 iptables.py $@
 elif [ `which python` ]; then
     python ssh-keynuke.py
@@ -44,11 +44,11 @@ elif [ `which python` ]; then
     python iptables.py $@
 elif [ `which python2` ]; then
     python2 ssh-keynuke.py
-    python2 disable-users.py
+    python2 disable_users.sh
     python2 iptables.py $@
 elif [ `which py` ]; then
     py ssh-keynuke.py
-    py disable-users.py
+    py disable_users.sh
     py iptables.py $@
 fi
 
