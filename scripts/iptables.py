@@ -11,6 +11,7 @@ basicFlush = False
 allowEstablished = True
 allowICMP = True
 isQuiet = False
+isLoop = False
 
 allowPorts = {
     "tcp":[22, 80, 443],
@@ -150,6 +151,8 @@ def main():
             basicFlush = True
         elif arg == "-p" or arg == "--ignore-ping":
             allowICMP = False
+        elif arg == "-l" or arg == "--loop":
+            isLoop = True
         elif arg == "-q" or arg == "--quiet":
             isQuiet = True
         elif arg == "--demo":
@@ -167,6 +170,7 @@ def main():
             print("                       |   before establishing new ones")
             print("-f or --flush-only     |   Flush all rules; don't establish new ones")
             print("-i or --iron-wall      |   Iron wall mode (NOT for use with cloud boxes)")
+            print("-l or --loop           |   Loop every 1 second")
             print("-p or --ignore-ping    |   Block ICMP Ping requests")
             print("-q or --quiet          |   Suppress output")
             print("--demo                 |   Display rule commands, but don't execute them")
@@ -174,10 +178,27 @@ def main():
             print("--udp=[PORTS]          |   Specify which UDP ports to allow (separated by ,)")
             exit(0)
 
-            
+    
     if os.popen('whoami').read() != "root\n":
         print("Error: Must be run as root!")
         return
+    if isLoop:
+        while True:
+            if disableFirewalls:
+                disable_firewalls()
+            if flushAllAllow:
+                flushall_allow()
+            if preDrop:
+                pre_drop()
+            if preKill:
+                pre_kill()
+            if not onlyFlush:
+                if safeMode:
+                    safe_mode()
+                else:
+                    iron_wall()
+            pass
+            time.sleep(1)
     if disableFirewalls:
         disable_firewalls()
     if flushAllAllow:
@@ -192,7 +213,6 @@ def main():
         else:
             iron_wall()
     pass
-
 
 
 
