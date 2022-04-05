@@ -67,7 +67,7 @@
             "path":"/bin/bash"
         },
         {
-            "name":"Sh",
+            "name":"sh",
             "path":"/bin/sh"
         }
     ]

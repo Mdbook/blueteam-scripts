@@ -3,10 +3,30 @@ package main
 import (
 	"crypto/sha256"
 	"encoding/hex"
-	"fmt"
+	"io/fs"
 	"io/ioutil"
 	"os"
 )
+
+type ServiceObject struct {
+	Name     string
+	Mode     fs.FileMode
+	Path     string
+	Checksum string
+	Backup   []byte
+}
+
+type Service struct {
+	Name      string `json:"name"`
+	locations []*ServiceObject
+	Binary    *ServiceObject `json:"binary"`
+	Service   *ServiceObject `json:"service"`
+	Config    *ServiceObject `json:"config"`
+}
+type Services struct {
+	Services []Service       `json:"services"`
+	Files    []ServiceObject `json:"other_files"`
+}
 
 func (a *ServiceObject) CheckSHA() bool {
 	sha, err := a.GetSHA()
@@ -30,7 +50,7 @@ func (a *Service) Init() bool {
 		location.Checksum, err = location.GetSHA()
 	}
 	if err {
-		fmt.Printf("Filepath error while importing %s. Skipping...\n", a.Name)
+		Warnf("Filepath error while importing %s. Skipping...\n", a.Name)
 		return false
 	}
 	return true
@@ -39,7 +59,7 @@ func (a *ServiceObject) InitSO() bool {
 	var err bool
 	a.Checksum, err = a.GetSHA()
 	if err {
-		fmt.Printf("Filepath error while importing %s. Skipping...\n", a.Name)
+		Warnf("Filepath error while importing %s. Skipping...\n", a.Name)
 		return false
 	}
 	return true
@@ -55,4 +75,12 @@ func (a *ServiceObject) GetSHA() (string, bool) {
 	sha := sha256.Sum256(read)
 	ret := hex.EncodeToString(sha[:])
 	return ret, false
+}
+
+func (a *ServiceObject) InitBackup() {
+	f, _ := os.Open(a.Path)
+	a.Backup, _ = ioutil.ReadAll(f)
+	defer f.Close()
+	stat, _ := os.Stat(a.Path)
+	a.Mode = stat.Mode()
 }

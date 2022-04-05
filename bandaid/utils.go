@@ -58,7 +58,8 @@ func CopyFile(src, dst string) (int64, error) {
 	nBytes, err := io.Copy(destination, source)
 	return nBytes, err
 }
-func remove(slice []Service, s int) []Service {
+
+func removeService(slice []Service, s int) []Service {
 	if s == len(slice) {
 		return slice[:s-1]
 	} else {
@@ -77,6 +78,15 @@ func (e *Service) getAttr(field string) *ServiceObject {
 	return e.locations[find(serviceNames, field)]
 }
 
+func contains(arr []string, s string) bool {
+	for _, str := range arr {
+		if str == s {
+			return true
+		}
+	}
+	return false
+}
+
 func find(arr []string, s string) int {
 	for i, str := range arr {
 		if str == s {
@@ -88,16 +98,22 @@ func find(arr []string, s string) int {
 
 func (e *ServiceObject) writeBackup() bool {
 	if !FileExists(e.Path) {
-		fmt.Printf("File %s was deleted. Restoring...\n", e.Path)
+		if outputEnabled {
+			fmt.Printf("File %s was deleted. Restoring...\n", e.Path)
+		}
 	} else if IsImmutable(e.Path) {
-		fmt.Printf("File %s is immutable. Removing immutable flag...\n", e.Path)
+		if outputEnabled {
+			fmt.Printf("File %s is immutable. Removing immutable flag...\n", e.Path)
+		}
 		RemoveImmutable(e.Path)
 	}
 	ret := writeFile(e.Path, e.Backup)
 	if ret {
 		err := os.Chmod(e.Path, e.Mode)
 		if err != nil {
-			fmt.Printf("Error setting permissions for %s", e.Path)
+			if outputEnabled {
+				fmt.Printf("Error setting permissions for %s", e.Path)
+			}
 			return false
 		}
 	}
@@ -136,4 +152,12 @@ func trim(str string) string {
 
 func caret() {
 	fmt.Print(colors.green + "> " + colors.reset)
+}
+
+func Warnf(s string, params ...interface{}) {
+	fmt.Printf(colors.yellow+s+colors.reset, params...)
+}
+
+func Errorf(s string, params ...interface{}) {
+	fmt.Printf(colors.red+s+colors.reset, params...)
 }

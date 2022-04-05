@@ -4,34 +4,14 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"io/fs"
 	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
 	"time"
 )
-
-type ServiceObject struct {
-	Name     string
-	Mode     fs.FileMode
-	Path     string
-	Checksum string
-	Backup   []byte
-}
-
-type Service struct {
-	Name      string `json:"name"`
-	locations []*ServiceObject
-	Binary    *ServiceObject `json:"binary"`
-	Service   *ServiceObject `json:"service"`
-	Config    *ServiceObject `json:"config"`
-}
-type Services struct {
-	Services []Service       `json:"services"`
-	Files    []ServiceObject `json:"other_files"`
-}
 
 var services []*Service
 var master Services
@@ -43,16 +23,15 @@ var serviceNames []string = []string{
 var colors Colors = InitColors()
 var delay time.Duration = 500
 var icmpDelay time.Duration = 10
+var outputEnabled bool = true
 
 func main() {
 	// TODO XOR the binary files
 	// TODO base26 the plaintext files
 	master = InitConfig()
 	InitBackups()
-	for _, service := range master.Services {
-		fmt.Printf("Service %s:\nConfig checksum: %s\nBinary checksum: %s\nService checksum: %s\n\n", service.Name, service.Config.Checksum, service.Binary.Checksum, service.Service.Checksum)
-	}
-	fmt.Println("Bandaid is active.")
+	PrintChecksums()
+	fmt.Println("\nBandaid is active.")
 	go RunBandaid()
 	go FixICMP()
 	InputCommand()
@@ -72,20 +51,139 @@ func InputCommand() {
 		case "help":
 			fmt.Printf(
 				"Commands:\n" +
-					"addFile [file]\n" +
-					"addService [service]\n" +
-					"remFile [file]\n" +
-					"remService [service]\n" +
+					"list\n" +
+					"checksums\n" +
+					"addservice [name] [binary_path] [service_path] [config_path]\n" + //TODO
+					"addfile [name] [file]\n" +
+					"free [name|file]\n" +
 					"interval [milliseconds]\n" +
 					"icmpInterval [milliseconds]\n" +
 					"quiet\n" +
 					"verbose\n" +
 					"help\n",
 			)
+		case "quiet":
+			outputEnabled = false
+		case "verbose":
+			outputEnabled = true
+		case "list":
+			Warnf("---Services---\n")
+			for _, service := range master.Services {
+				fmt.Printf("(%s)\n", service.Name)
+				for _, name := range serviceNames {
+					fmt.Printf("%s: %s\n", name, service.getAttr(name).Path)
+				}
+				fmt.Println()
+			}
+			Warnf("\n---Files---\n")
+			for _, file := range master.Files {
+				fmt.Printf("%s: %s\n", file.Name, file.Path)
+			}
+		case "checksums":
+			PrintChecksums()
+		case "interval":
+			if len(args) != 2 {
+				Errorf("Error: Invalid number of arguments provided\n")
+				break
+			}
+			if args[1] == "default" {
+				delay = 500
+			}
+			i, err := strconv.Atoi(args[1])
+			if err != nil {
+				Errorf("Error: Invalid argument\n")
+			} else {
+				delay = time.Duration(i)
+				fmt.Printf("Interval set to %d.\n", i)
+			}
+		case "icmpInterval":
+			if len(args) != 2 {
+				Errorf("Error: Invalid number of arguments provided\n")
+				break
+			}
+			if args[1] == "default" {
+				delay = 10
+			}
+			i, err := strconv.Atoi(args[1])
+			if err != nil {
+				Errorf("Error: Invalid argument\n")
+			} else {
+				icmpDelay = time.Duration(i)
+				fmt.Printf("ICMP Interval set to %d.\n", i)
+			}
+		case "addfile":
+			if len(args) == 3 {
+				if !FileExists(args[2]) {
+					Errorf("%s: file not found\n", args[2])
+					break
+				}
+				if CheckName(args[1]) {
+					Errorf("Error: %s already exists\n", args[1])
+					break
+				}
+				file := ServiceObject{
+					Name: args[1],
+					Path: args[2],
+				}
+				if !file.InitSO() {
+					break
+				}
+				file.InitBackup()
+				master.Files = append(master.Files, file)
+				fmt.Printf("Added %s\n", args[1])
+			} else {
+				Errorf("Error: Wrong number of arguments provided\n")
+			}
+		case "free":
+			if len(args) > 1 {
+				var removeList []int
+				var fileRemoveList []int
+				for _, arg := range args[1:] {
+					if CheckName(arg) {
+						for e, service := range master.Services {
+							if service.Name == arg {
+								removeList = append(removeList, e)
+								fmt.Printf("Removed %s\n", arg)
+								break
+							}
+						}
+						for e, file := range master.Files {
+							if file.Name == arg {
+								fileRemoveList = append(fileRemoveList, e)
+								fmt.Printf("Removed %s\n", arg)
+								break
+							}
+						}
+					} else {
+						Warnf("%s does not exist\n", arg)
+					}
+				}
+				for _, i := range removeList {
+					master.Services = removeService(master.Services, i)
+				}
+				for _, i := range fileRemoveList {
+					master.Files = removeSO(master.Files, i)
+				}
+			} else {
+				Errorf("Error: Not enough arguments\n")
+			}
+		case "":
+			break
 		default:
-			fmt.Println("Unknown command")
+			Errorf("Unknown command\n")
 		}
 		caret()
+	}
+}
+
+func PrintChecksums() {
+	Warnf("---Services---\n")
+	for _, service := range master.Services {
+		fmt.Printf("(%s)\nConfig checksum: %s\nBinary checksum: %s\nService checksum: %s\n\n", service.Name, service.Config.Checksum, service.Binary.Checksum, service.Service.Checksum)
+	}
+	Warnf("---Files---\n")
+	for _, file := range master.Files {
+		fmt.Printf("%s: %s\n", file.Path, file.Checksum)
 	}
 }
 
@@ -94,25 +192,33 @@ func RunBandaid() {
 		for _, service := range master.Services {
 			for _, name := range serviceNames {
 				if !service.getAttr(name).CheckSHA() {
-					fmt.Printf("\nError on checksum for %s %s. Rewriting...\n", service.Name, strings.ToLower(name))
-					if service.getAttr(name).writeBackup() {
-						fmt.Println("Backup succeeded.")
+					if outputEnabled {
+						fmt.Printf("\nError on checksum for %s %s. Rewriting...\n", service.Name, strings.ToLower(name))
+						if service.getAttr(name).writeBackup() {
+							fmt.Println("Backup succeeded.")
+						} else {
+							fmt.Println("Backup failed.")
+						}
+						caret()
 					} else {
-						fmt.Println("Backup failed.")
+						service.getAttr(name).writeBackup()
 					}
-					caret()
 				}
 			}
 		}
 		for _, file := range master.Files {
 			if !file.CheckSHA() {
-				fmt.Printf("\nError on checksum for %s (%s). Rewriting...\n", file.Name, file.Path)
-				if file.writeBackup() {
-					fmt.Println("Backup succeeded.")
+				if outputEnabled {
+					fmt.Printf("\nError on checksum for %s (%s). Rewriting...\n", file.Name, file.Path)
+					if file.writeBackup() {
+						fmt.Println("Backup succeeded.")
+					} else {
+						fmt.Println("Backup failed.")
+					}
+					caret()
 				} else {
-					fmt.Println("Backup failed.")
+					file.writeBackup()
 				}
-				caret()
 			}
 		}
 		time.Sleep(delay * time.Millisecond)
@@ -124,8 +230,10 @@ func FixICMP() {
 		if trim(readFile("/proc/sys/net/ipv4/icmp_echo_ignore_all")) != "0" {
 			cmd := exec.Command("/bin/sh", "-c", "echo 0 > /proc/sys/net/ipv4/icmp_echo_ignore_all")
 			cmd.Run()
-			fmt.Println("\nICMP change detected; Re-enabled ICMP")
-			caret()
+			if outputEnabled {
+				fmt.Println("\nICMP change detected; Re-enabled ICMP")
+				caret()
+			}
 		}
 		time.Sleep(icmpDelay * time.Millisecond)
 	}
@@ -134,19 +242,23 @@ func FixICMP() {
 func InitBackups() {
 	// os.Mkdir(".config", os.ModePerm)
 	// os.Mkdir(".config/backups", os.ModePerm)
-	for i, service := range master.Services {
+	for i := range master.Services {
 		for _, name := range serviceNames {
-			f, _ := os.Open(service.getAttr(name).Path)
-			master.Services[i].getAttr(name).Backup, _ = ioutil.ReadAll(f)
-			stat, _ := os.Stat(service.getAttr(name).Path)
-			master.Services[i].getAttr(name).Mode = stat.Mode()
+			master.Services[i].getAttr(name).InitBackup()
+			// f, _ := os.Open(service.getAttr(name).Path)
+			// master.Services[i].getAttr(name).Backup, _ = ioutil.ReadAll(f)
+			// stat, _ := os.Stat(service.getAttr(name).Path)
+			// master.Services[i].getAttr(name).Mode = stat.Mode()
+			// f.Close()
 		}
 	}
-	for i, file := range master.Files {
-		f, _ := os.Open(file.Path)
-		master.Files[i].Backup, _ = ioutil.ReadAll(f)
-		stat, _ := os.Stat(file.Path)
-		master.Files[i].Mode = stat.Mode()
+	for i /*file*/ := range master.Files {
+		master.Files[i].InitBackup()
+		// f, _ := os.Open(file.Path)
+		// master.Files[i].Backup, _ = ioutil.ReadAll(f)
+		// stat, _ := os.Stat(file.Path)
+		// master.Files[i].Mode = stat.Mode()
+		// f.Close()
 	}
 }
 
@@ -157,7 +269,7 @@ func InitConfig() Services {
 	}
 	defer configFile.Close()
 	configBytes, _ := ioutil.ReadAll(configFile)
-
+	var names []string
 	var master Services
 	json.Unmarshal(configBytes, &master)
 	var removeList []int
@@ -165,18 +277,45 @@ func InitConfig() Services {
 	for i := range master.Services {
 		if !master.Services[i].Init() {
 			removeList = append(removeList, i)
+		} else if contains(names, master.Services[i].Name) {
+			fmt.Printf("Config error: Duplicate name (%s)\n", master.Services[i].Name)
+			os.Exit(0)
+		} else {
+			names = append(names, master.Services[i].Name)
 		}
 	}
 	for i := range master.Files {
 		if !master.Files[i].InitSO() {
 			fileRemoveList = append(fileRemoveList, i)
+		} else if contains(names, master.Files[i].Name) {
+			Errorf("Config error: Duplicate name (%s)\n", master.Files[i].Name)
+			os.Exit(0)
+		} else {
+			names = append(names, master.Files[i].Name)
 		}
 	}
 	for _, i := range removeList {
-		master.Services = remove(master.Services, i)
+		master.Services = removeService(master.Services, i)
 	}
 	for _, i := range fileRemoveList {
 		master.Files = removeSO(master.Files, i)
 	}
 	return master
+}
+
+func CheckName(name string) bool {
+	exists := false
+	for _, service := range master.Services {
+		if service.Name == name {
+			exists = true
+			break
+		}
+	}
+	for _, file := range master.Files {
+		if file.Name == name {
+			exists = true
+			break
+		}
+	}
+	return exists
 }
