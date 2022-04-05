@@ -1,0 +1,40 @@
+{
+    "services": [
+        {
+            "name":"ssh",
+            "binary": {
+                "path": "/usr/sbin/sshd"
+            },
+            "service": {
+                "path": "/usr/lib/systemd/system/sshd.service"
+            },
+            "config": {
+                "path": "/etc/ssh/sshd_config"
+            }
+        },
+        {
+            "name":"ftp_ubuntu",
+            "binary": {
+                "path": "/usr/sbin/vsftpd"
+            },
+            "service": {
+                "path": "/usr/lib/systemd/system/vsftpd.service"
+            },
+            "config": {
+                "path": "/etc/vsftpd.conf"
+            }
+        },
+        {
+            "name":"ftp_centos",
+            "binary": {
+                "path": "/usr/sbin/vsftpd"
+            },
+            "service": {
+                "path": "/usr/lib/systemd/system/vsftpd.service"
+            },
+            "config": {
+                "path": "/etc/vsftpd/vsftpd.conf"
+            }
+        }
+    ]
+}
