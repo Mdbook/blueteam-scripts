@@ -8,6 +8,32 @@ import (
 	"strings"
 )
 
+type Colors struct {
+	red     string
+	green   string
+	blue    string
+	black   string
+	yellow  string
+	magenta string
+	cyan    string
+	white   string
+	reset   string
+}
+
+func InitColors() Colors {
+	return Colors{
+		reset:   "\033[0m",
+		black:   "\033[30m",
+		red:     "\033[31m",
+		green:   "\033[32m",
+		yellow:  "\033[33m",
+		blue:    "\033[34m",
+		magenta: "\033[35m",
+		cyan:    "\033[36m",
+		white:   "\033[37m",
+	}
+}
+
 func CopyFile(src, dst string) (int64, error) {
 	sourceFileStat, err := os.Stat(src)
 	if err != nil {
@@ -33,7 +59,18 @@ func CopyFile(src, dst string) (int64, error) {
 	return nBytes, err
 }
 func remove(slice []Service, s int) []Service {
-	return append(slice[:s], slice[s+1:]...)
+	if s == len(slice) {
+		return slice[:s-1]
+	} else {
+		return append(slice[:s], slice[s+1:]...)
+	}
+}
+func removeSO(slice []ServiceObject, s int) []ServiceObject {
+	if s == len(slice) {
+		return slice[:s-1]
+	} else {
+		return append(slice[:s], slice[s+1:]...)
+	}
 }
 
 func (e *Service) getAttr(field string) *ServiceObject {
@@ -50,11 +87,21 @@ func find(arr []string, s string) int {
 }
 
 func (e *ServiceObject) writeBackup() bool {
-	if IsImmutable(e.Path) {
+	if !FileExists(e.Path) {
+		fmt.Printf("File %s was deleted. Restoring...\n", e.Path)
+	} else if IsImmutable(e.Path) {
 		fmt.Printf("File %s is immutable. Removing immutable flag...\n", e.Path)
 		RemoveImmutable(e.Path)
 	}
-	return writeFile(e.Path, e.Backup)
+	ret := writeFile(e.Path, e.Backup)
+	if ret {
+		err := os.Chmod(e.Path, e.Mode)
+		if err != nil {
+			fmt.Printf("Error setting permissions for %s", e.Path)
+			return false
+		}
+	}
+	return ret
 }
 
 func writeFile(file string, contents []byte) bool {
@@ -76,6 +123,17 @@ func readFile(path string) string {
 	return str
 }
 
+func FileExists(path string) bool {
+	if _, err := os.Stat(path); err == nil {
+		return true
+	}
+	return false
+}
+
 func trim(str string) string {
 	return strings.TrimSuffix(strings.TrimSuffix(str, "\n"), "\r")
+}
+
+func caret() {
+	fmt.Print(colors.green + "> " + colors.reset)
 }

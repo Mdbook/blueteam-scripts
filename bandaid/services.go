@@ -35,6 +35,15 @@ func (a *Service) Init() bool {
 	}
 	return true
 }
+func (a *ServiceObject) InitSO() bool {
+	var err bool
+	a.Checksum, err = a.GetSHA()
+	if err {
+		fmt.Printf("Filepath error while importing %s. Skipping...\n", a.Name)
+		return false
+	}
+	return true
+}
 
 func (a *ServiceObject) GetSHA() (string, bool) {
 	f, err := os.Open(a.Path)
