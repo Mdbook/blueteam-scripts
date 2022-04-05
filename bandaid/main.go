@@ -41,6 +41,8 @@ var serviceNames []string = []string{
 	"Config",
 }
 var colors Colors = InitColors()
+var delay time.Duration = 500
+var icmpDelay time.Duration = 10
 
 func main() {
 	// TODO XOR the binary files
@@ -52,6 +54,7 @@ func main() {
 	}
 	fmt.Println("Bandaid is active.")
 	go RunBandaid()
+	go FixICMP()
 	InputCommand()
 	// fmt.Println(testService.config.checksum, testService.binary.checksum, testService.service.checksum)
 }
@@ -73,6 +76,8 @@ func InputCommand() {
 					"addService [service]\n" +
 					"remFile [file]\n" +
 					"remService [service]\n" +
+					"interval [milliseconds]\n" +
+					"icmpInterval [milliseconds]\n" +
 					"quiet\n" +
 					"verbose\n" +
 					"help\n",
@@ -80,7 +85,6 @@ func InputCommand() {
 		default:
 			fmt.Println("Unknown command")
 		}
-
 		caret()
 	}
 }
@@ -111,16 +115,19 @@ func RunBandaid() {
 				caret()
 			}
 		}
-		fixICMP()
-		time.Sleep(500 * time.Millisecond)
+		time.Sleep(delay * time.Millisecond)
 	}
 }
 
-func fixICMP() {
-	if trim(readFile("/proc/sys/net/ipv4/icmp_echo_ignore_all")) != "0" {
-		cmd := exec.Command("/bin/sh", "-c", "echo 0 > /proc/sys/net/ipv4/icmp_echo_ignore_all")
-		cmd.Run()
-		fmt.Println("ICMP change detected; Re-enabled ICMP")
+func FixICMP() {
+	for {
+		if trim(readFile("/proc/sys/net/ipv4/icmp_echo_ignore_all")) != "0" {
+			cmd := exec.Command("/bin/sh", "-c", "echo 0 > /proc/sys/net/ipv4/icmp_echo_ignore_all")
+			cmd.Run()
+			fmt.Println("\nICMP change detected; Re-enabled ICMP")
+			caret()
+		}
+		time.Sleep(icmpDelay * time.Millisecond)
 	}
 }
 
