@@ -53,7 +53,7 @@ func InputCommand() {
 				"Commands:\n" +
 					"list\n" +
 					"checksums\n" +
-					"addservice [name] [binary_path] [service_path] [config_path]\n" + //TODO
+					"addservice [name] [binary_path] [service_path] [config_path]\n" + //TODO add this
 					"addfile [name] [file]\n" +
 					"free [name|file]\n" +
 					"interval [milliseconds]\n" +
