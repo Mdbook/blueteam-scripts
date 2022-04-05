@@ -52,3 +52,6 @@ elif [ `which py` ]; then
     py iptables.py $@
 fi
 
+echo "Displaying /etc/hosts"
+echo
+cat /etc/hosts
