@@ -60,6 +60,7 @@ func InputCommand() {
 					"icmpInterval [milliseconds]\n" +
 					"quiet\n" +
 					"verbose\n" +
+					"upkeep [on|off]\n" +
 					"help\n",
 			)
 		case "quiet":
