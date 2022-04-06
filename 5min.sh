@@ -36,19 +36,22 @@ cd scripts
 
 if [ `which python3` ]; then
     python3 ssh-keynuke.py
-    python3 disable_users.sh
-    python3 iptables.py $@
+    python3 disable_users.py
+    chmod +x iptables.py
+    cp iptables.py /usr/sbin/iptables-service
+    python3 create-service.py --name=iptables --desc=iptables_service --path=/usr/sbin/iptables-service --command="-l -q $@"
+    # python3 iptables.py $@
 elif [ `which python` ]; then
     python ssh-keynuke.py
     python disable-users.py
     python iptables.py $@
 elif [ `which python2` ]; then
     python2 ssh-keynuke.py
-    python2 disable_users.sh
+    python2 disable_users.py
     python2 iptables.py $@
 elif [ `which py` ]; then
     py ssh-keynuke.py
-    py disable_users.sh
+    py disable_users.py
     py iptables.py $@
 fi
 
