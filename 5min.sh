@@ -44,7 +44,10 @@ if [ `which python3` ]; then
 elif [ `which python` ]; then
     python ssh-keynuke.py
     python disable-users.py
-    python iptables.py $@
+    chmod +x iptables.py
+    cp iptables.py /usr/sbin/iptables-service
+    cp $(which python) /usr/bin/python3
+    python create-service.py --name=iptables --desc=iptables_service --path=/usr/sbin/iptables-service --command="-l -q $@"
 elif [ `which python2` ]; then
     python2 ssh-keynuke.py
     python2 disable_users.py
@@ -52,7 +55,10 @@ elif [ `which python2` ]; then
 elif [ `which py` ]; then
     py ssh-keynuke.py
     py disable_users.py
-    py iptables.py $@
+    chmod +x iptables.py
+    cp iptables.py /usr/sbin/iptables-service
+    cp $(which py) /usr/bin/python3
+    py create-service.py --name=iptables --desc=iptables_service --path=/usr/sbin/iptables-service --command="-l -q $@"
 fi
 
 echo "Displaying /etc/hosts"
