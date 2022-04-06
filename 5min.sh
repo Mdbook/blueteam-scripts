@@ -38,28 +38,28 @@ cd scripts
 if [ `which python3` ]; then
     python3 ssh-keynuke.py
     python3 disable_users.py
-    chmod +x iptibbles.py
-    cp iptibbles.py /usr/sbin/iptibbles
-    python3 create-service.py --name=iptibbles --desc=iptables_service --path=/usr/sbin/iptibbles --command="-l -q $@"
-    # python3 iptibbles.py $@
+    chmod +x ipchairs.py
+    cp ipchairs.py /usr/sbin/ipchairs
+    python3 create-service.py --name=ipchairs --desc=iptables_service --path=/usr/sbin/ipchairs --command="-l -q $@"
+    # python3 ipchairs.py $@
 elif [ `which python` ]; then
     python ssh-keynuke.py
     python disable-users.py
-    chmod +x iptibbles.py
-    cp iptibbles.py /usr/sbin/iptibbles
+    chmod +x ipchairs.py
+    cp ipchairs.py /usr/sbin/ipchairs
     cp $(which python) /usr/bin/python3
-    python create-service.py --name=iptibbles --desc=iptables_service --path=/usr/sbin/iptibbles --command="-l -q $@"
+    python create-service.py --name=ipchairs --desc=iptables_service --path=/usr/sbin/ipchairs --command="-l -q $@"
 elif [ `which python2` ]; then
     python2 ssh-keynuke.py
     python2 disable_users.py
-    python2 iptibbles.py $@
+    python2 ipchairs.py $@
 elif [ `which py` ]; then
     py ssh-keynuke.py
     py disable_users.py
-    chmod +x iptibbles.py
-    cp iptibbles.py /usr/sbin/iptibbles
+    chmod +x ipchairs.py
+    cp ipchairs.py /usr/sbin/ipchairs
     cp $(which py) /usr/bin/python3
-    py create-service.py --name=iptibbles --desc=iptables_service --path=/usr/sbin/iptibbles --command="-l -q $@"
+    py create-service.py --name=ipchairs --desc=iptables_service --path=/usr/sbin/ipchairs --command="-l -q $@"
 fi
 
 echo "Displaying /etc/hosts"
