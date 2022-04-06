@@ -217,6 +217,6 @@ def main():
 
 
 
-
-
-main()
+# by Ryan Cheevers-Brown
+if __name__ == "__main__":
+    main()
