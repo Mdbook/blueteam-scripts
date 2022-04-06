@@ -134,6 +134,49 @@ func InputCommand() {
 			} else {
 				Errorf("Error: Wrong number of arguments provided\n")
 			}
+		case "addservice":
+			if len(args) == 5 {
+				brk := false
+				for _, arg := range args[2:] {
+					if !FileExists(arg) {
+						brk = true
+						Errorf("%s: file not found\n", args[2])
+						break
+					}
+				}
+				if brk {
+					break
+				}
+				if CheckName(args[1]) {
+					Errorf("Error: %s already exists\n", args[1])
+					break
+				}
+				binary := ServiceObject{
+					Path: args[2],
+				}
+				service := ServiceObject{
+					Path: args[3],
+				}
+				config := ServiceObject{
+					Path: args[4],
+				}
+				serv := Service{
+					Name:    args[1],
+					Binary:  &binary,
+					Service: &service,
+					Config:  &config,
+				}
+				if !serv.Init() {
+					break
+				}
+				for _, name := range serviceNames {
+					serv.getAttr(name).InitBackup()
+				}
+				master.Services = append(master.Services, serv)
+				fmt.Printf("Added %s\n", args[1])
+			} else {
+				Errorf("Error: Wrong number of arguments provided\n")
+			}
 		case "free":
 			if len(args) > 1 {
 				var removeList []int
