@@ -16,6 +16,7 @@ while line:
     if username == startuser:
         go = True
     if go and username not in whitelist:
+        os.system("sudo killall -u " + str(username))
         os.system("sudo usermod -L " + str(username))
         os.system("sudo passwd -l " + str(username))
         os.system("sudo chage -E0 " + str(username))
