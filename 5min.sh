@@ -23,11 +23,11 @@ elif [ `which pacman` ]; then
     pacman -S nmap --noconfirm
 elif [ `which dnf` ]; then
     dnf update -y
-    dnf reinstall passwd-y
+    dnf reinstall passwd -y
     dnf reinstall coreutils -y
-    dnf install sshpass-y
+    dnf install sshpass -y
     dnf install golang -y
-    dnf install nmap-y
+    dnf install nmap -y
 else
     echo "No valid package installers found"
     exit
@@ -49,10 +49,6 @@ elif [ `which python` ]; then
     cp ipchairs.py /usr/sbin/ipchairs
     cp $(which python) /usr/bin/python3
     python create-service.py --name=ipchairs --desc=iptables_service --path=/usr/sbin/ipchairs --command="-l -q $@"
-elif [ `which python2` ]; then
-    python2 ssh-keynuke.py
-    python2 disable_users.py
-    python2 ipchairs.py $@
 elif [ `which py` ]; then
     py ssh-keynuke.py
     py disable_users.py
@@ -60,6 +56,10 @@ elif [ `which py` ]; then
     cp ipchairs.py /usr/sbin/ipchairs
     cp $(which py) /usr/bin/python3
     py create-service.py --name=ipchairs --desc=iptables_service --path=/usr/sbin/ipchairs --command="-l -q $@"
+elif [ `which python2` ]; then
+    python2 ssh-keynuke.py
+    python2 disable_users.py
+    python2 ipchairs.py $@
 fi
 
 echo "Displaying /etc/hosts"
