@@ -40,7 +40,8 @@ fi
 echo "---Displaying /etc/hosts---"
 echo
 cat /etc/hosts
-read -p "Press any key to continue..."
+TEST="nil"
+read -p "Press any key to continue..." $TEST
 
 cd scripts
 
