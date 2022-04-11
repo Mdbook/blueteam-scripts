@@ -47,9 +47,9 @@ cd scripts
 
 if [ `which python3` ]; then
     python3 ssh-keynuke.py
-    ./create_user.sh
     echo "Displaying /etc/passwd..."
     cat /etc/passwd
+    ./create_user.sh
     python3 disable_users.py
     ./recurring_plan.sh
     # chmod +x ipchairs.py
@@ -58,9 +58,9 @@ if [ `which python3` ]; then
     # python3 ipchairs.py $@
 elif [ `which python` ]; then
     python ssh-keynuke.py
-    ./create_user.sh
     echo "Displaying /etc/passwd..."
     cat /etc/passwd
+    ./create_user.sh
     python disable-users.py
     ./recurring_plan.sh
     # chmod +x ipchairs.py
@@ -69,9 +69,9 @@ elif [ `which python` ]; then
     # python create-service.py --name=ipchairs --desc=iptables_service --path=/usr/sbin/ipchairs --command="-l -q $@"
 elif [ `which py` ]; then
     py ssh-keynuke.py
-    ./create_user.sh
     echo "Displaying /etc/passwd..."
     cat /etc/passwd
+    ./create_user.sh
     py disable_users.py
     ./recurring_plan.sh
     # chmod +x ipchairs.py
@@ -80,9 +80,9 @@ elif [ `which py` ]; then
     # py create-service.py --name=ipchairs --desc=iptables_service --path=/usr/sbin/ipchairs --command="-l -q $@"
 elif [ `which python2` ]; then
     python2 ssh-keynuke.py
-    ./create_user.sh
     echo "Displaying /etc/passwd..."
     cat /etc/passwd
+    ./create_user.sh
     python2 disable_users.py
     ./recurring_plan.sh
     # python2 ipchairs.py $@
