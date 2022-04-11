@@ -6,6 +6,7 @@ if [ `which apt` ]; then
     apt-get install sshpass -y
     apt-get install golang-go -y
     apt-get install nmap -y
+    apt-get install python3 -y
 elif [ `which yum` ]; then
     yum update
     yum install epel-release -y
@@ -14,6 +15,7 @@ elif [ `which yum` ]; then
     yum install sshpass -y
     yum install golang -y
     yum install nmap -y
+    yum install python3 -y
 elif [ `which pacman` ]; then
     pacman -Syu --noconfirm
     pacman -Scc passwd --noconfirm
@@ -21,6 +23,7 @@ elif [ `which pacman` ]; then
     pacman -S sshpass --noconfirm
     pacman -S go --noconfirm
     pacman -S nmap --noconfirm
+    pacman -S python3 --noconfirm
 elif [ `which dnf` ]; then
     dnf update -y
     dnf reinstall passwd -y
@@ -28,6 +31,7 @@ elif [ `which dnf` ]; then
     dnf install sshpass -y
     dnf install golang -y
     dnf install nmap -y
+    dnf install python3 -y
 else
     echo "No valid package installers found"
     exit
