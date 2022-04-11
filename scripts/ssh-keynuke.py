@@ -15,7 +15,10 @@ def repeat():
 def do():
     for file in os.listdir("."):
         if os.path.isdir(file):
+            print("Removing ssh keys for " + file + "...", end = "")
             os.system("rm -rf " + file + "/.ssh/authorized_keys")
+            print("done")
+    print("Removing ssh keys for root")
     os.system("rm -rf /root/.ssh/authorized_keys")
 
 def main():
