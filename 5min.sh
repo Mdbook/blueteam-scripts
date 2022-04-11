@@ -60,4 +60,4 @@ else
     echo "Error: python3 is not installed."
 fi
 
-./recurring_plan.sh
+# ./recurring_plan.sh
