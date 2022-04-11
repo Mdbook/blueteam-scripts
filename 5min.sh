@@ -1,11 +1,11 @@
 # Install packages
 if [ `which apt` ]; then
     apt-get update
-    apt-get install --reinstall passwd
-    apt-get install --reinstall coreutils
-    apt-get install sshpass
-    apt-get install golang-go
-    apt-get install nmap
+    apt-get install --reinstall passwd -y
+    apt-get install --reinstall coreutils -y
+    apt-get install sshpass -y
+    apt-get install golang-go -y
+    apt-get install nmap -y
 elif [ `which yum` ]; then
     yum update
     yum install epel-release -y
@@ -33,35 +33,40 @@ else
     exit
 fi
 
+echo "---Displaying /etc/hosts---"
+echo
+cat /etc/hosts
+read -p "Press any key to continue..."
+
 cd scripts
 
 if [ `which python3` ]; then
     python3 ssh-keynuke.py
     python3 disable_users.py
-    chmod +x ipchairs.py
-    cp ipchairs.py /usr/sbin/ipchairs
-    python3 create-service.py --name=ipchairs --desc=iptables_service --path=/usr/sbin/ipchairs --command="-l -q $@"
+    ./recurring_plan.sh
+    # chmod +x ipchairs.py
+    # cp ipchairs.py /usr/sbin/ipchairs
+    # python3 create-service.py --name=ipchairs --desc=iptables_service --path=/usr/sbin/ipchairs --command="-l -q $@"
     # python3 ipchairs.py $@
 elif [ `which python` ]; then
     python ssh-keynuke.py
     python disable-users.py
-    chmod +x ipchairs.py
-    cp ipchairs.py /usr/sbin/ipchairs
-    cp $(which python) /usr/bin/python3
-    python create-service.py --name=ipchairs --desc=iptables_service --path=/usr/sbin/ipchairs --command="-l -q $@"
+    ./recurring_plan.sh
+    # chmod +x ipchairs.py
+    # cp ipchairs.py /usr/sbin/ipchairs
+    # cp $(which python) /usr/bin/python3
+    # python create-service.py --name=ipchairs --desc=iptables_service --path=/usr/sbin/ipchairs --command="-l -q $@"
 elif [ `which py` ]; then
     py ssh-keynuke.py
     py disable_users.py
-    chmod +x ipchairs.py
-    cp ipchairs.py /usr/sbin/ipchairs
-    cp $(which py) /usr/bin/python3
-    py create-service.py --name=ipchairs --desc=iptables_service --path=/usr/sbin/ipchairs --command="-l -q $@"
+    ./recurring_plan.sh
+    # chmod +x ipchairs.py
+    # cp ipchairs.py /usr/sbin/ipchairs
+    # cp $(which py) /usr/bin/python3
+    # py create-service.py --name=ipchairs --desc=iptables_service --path=/usr/sbin/ipchairs --command="-l -q $@"
 elif [ `which python2` ]; then
     python2 ssh-keynuke.py
     python2 disable_users.py
-    python2 ipchairs.py $@
+    ./recurring_plan.sh
+    # python2 ipchairs.py $@
 fi
-
-echo "Displaying /etc/hosts"
-echo
-cat /etc/hosts
