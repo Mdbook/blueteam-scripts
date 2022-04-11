@@ -47,43 +47,17 @@ cd scripts
 
 if [ `which python3` ]; then
     python3 ssh-keynuke.py
+    echo "---Creating new user---"
+    ./create_user.sh
     echo "Displaying /etc/passwd..."
     cat /etc/passwd
-    ./create_user.sh
     python3 disable_users.py
-    ./recurring_plan.sh
     # chmod +x ipchairs.py
     # cp ipchairs.py /usr/sbin/ipchairs
     # python3 create-service.py --name=ipchairs --desc=iptables_service --path=/usr/sbin/ipchairs --command="-l -q $@"
     # python3 ipchairs.py $@
-elif [ `which python` ]; then
-    python ssh-keynuke.py
-    echo "Displaying /etc/passwd..."
-    cat /etc/passwd
-    ./create_user.sh
-    python disable-users.py
-    ./recurring_plan.sh
-    # chmod +x ipchairs.py
-    # cp ipchairs.py /usr/sbin/ipchairs
-    # cp $(which python) /usr/bin/python3
-    # python create-service.py --name=ipchairs --desc=iptables_service --path=/usr/sbin/ipchairs --command="-l -q $@"
-elif [ `which py` ]; then
-    py ssh-keynuke.py
-    echo "Displaying /etc/passwd..."
-    cat /etc/passwd
-    ./create_user.sh
-    py disable_users.py
-    ./recurring_plan.sh
-    # chmod +x ipchairs.py
-    # cp ipchairs.py /usr/sbin/ipchairs
-    # cp $(which py) /usr/bin/python3
-    # py create-service.py --name=ipchairs --desc=iptables_service --path=/usr/sbin/ipchairs --command="-l -q $@"
-elif [ `which python2` ]; then
-    python2 ssh-keynuke.py
-    echo "Displaying /etc/passwd..."
-    cat /etc/passwd
-    ./create_user.sh
-    python2 disable_users.py
-    ./recurring_plan.sh
-    # python2 ipchairs.py $@
+else
+    echo "Error: python3 is not installed."
 fi
+
+./recurring_plan.sh
