@@ -51,7 +51,7 @@ if [ `which python3` ]; then
     ./create_user.sh
     echo "Displaying /etc/passwd..."
     cat /etc/passwd
-    python3 disable_users.py
+    python3 disable-users.py
     # chmod +x ipchairs.py
     # cp ipchairs.py /usr/sbin/ipchairs
     # python3 create-service.py --name=ipchairs --desc=iptables_service --path=/usr/sbin/ipchairs --command="-l -q $@"
